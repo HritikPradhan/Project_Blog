@@ -8,12 +8,12 @@ const authorModel = require('../models/authorModel')
 
 const createBlog = async function (req, res) {
   try {
-    if (req.user) {
+    let id = req.body.authorId;
+    if (req.user.userId == id) {
       const blog = req.body;
       if (blog.isPublished == true) {
         blog["publishedAt"] = new Date()
       }
-      const id = req.body.authorId;
       let check = await authorModel.findById(id)
       if (check) {
         let write = await blogModel.create(blog);
@@ -94,7 +94,7 @@ const updateBlog = async function (req, res) {
 
     const check = await blogModel.findOne({ _id: blogId })
     const authid = check.authorId
-   
+
     if (req.user.userId == authid) {
       const updatedBlog = await blogModel.findOneAndUpdate({ _id: blogId }, { title: title, body: body, $push: { tags: tags, subcategory: subcategory }, isPublished: isPublished }, { new: true })
 
@@ -106,7 +106,7 @@ const updateBlog = async function (req, res) {
       res.status(404).send({ msg: "invalid blogId" })
     }
   } catch (error) {
-    
+
     res.status(500).send({ status: false, message: error.message });
   }
 }
